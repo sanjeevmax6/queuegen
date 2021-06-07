@@ -11,8 +11,11 @@ import {Text, Image} from 'react-native-elements';
 import FloatingLabel from '../../components/FloatingLabel';
 import FloatingLabelPass from '../../components/FloatingLabelPass';
 import CardFlip from 'react-native-card-flip';
+import SignUpScreen from '../../screens/Signup'
+import { SafeAreaView } from 'react-native';
+import { ScrollView } from 'react-native';
 
-const LoginScreen = ({}) => {
+const LoginScreen = ({navigation}) => {
   const [passVisibilty, setpassVisibilty] = useState(false);
   const [passImg, setpassImg] = useState('eye-slash');
   const togglePassword = () => {
@@ -25,7 +28,8 @@ const LoginScreen = ({}) => {
     }
   };
   return (
-    <KeyboardAvoidingView behavior="padding">
+    // <SafeAreaView>
+    //   <ScrollView>
       <TouchableWithoutFeedback
         onPress={() => {
           Keyboard.dismiss();
@@ -33,7 +37,11 @@ const LoginScreen = ({}) => {
         <View style={styles.container}>
           <View style={styles.logintextcontainer}>
             <Text style={styles.logintext}>Login</Text>
-            <Text style={styles.signuptext}>Sign Up</Text>
+            <TouchableOpacity onPress = {()=> {
+              navigation.navigate('SignUp')
+            }}>
+              <Text style={styles.signuptext}>Sign Up</Text>
+            </TouchableOpacity>
           </View>
 
           <View style={styles.collection}>
@@ -78,7 +86,12 @@ const LoginScreen = ({}) => {
           </View>
         </View>
       </TouchableWithoutFeedback>
-    </KeyboardAvoidingView>
+    //   </ScrollView>
+      
+    // </SafeAreaView>
+    
+      
+   
     //   <View style={styless.container}>
     //   <CardFlip style={styless.cardContainer} ref={card => (this.card = card)}>
     //     <TouchableOpacity
@@ -101,9 +114,11 @@ const LoginScreen = ({}) => {
 const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
+    justifyContent: 'center',
     backgroundColor: 'white',
     height: '100%',
     flexDirection: 'column',
+    flex: 1,
   },
   logintextcontainer: {
     flexDirection: 'row',

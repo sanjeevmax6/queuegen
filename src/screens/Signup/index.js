@@ -1,4 +1,6 @@
 import React, {Component, useState} from 'react';
+import { SafeAreaView } from 'react-native';
+import { ScrollView } from 'react-native';
 import {
   View,
   StyleSheet,
@@ -11,7 +13,7 @@ import {Text, Image} from 'react-native-elements';
 import FloatingLabel from '../../components/FloatingLabel';
 import FloatingLabelPass from '../../components/FloatingLabelPass';
 
-const SignUpScreen = () => {
+const SignUpScreen = ({navigation}) => {
   const [email, setemail] = useState('');
   const [phoneNum, setPhone] = useState('');
   const [name, setName] = useState('');
@@ -51,14 +53,21 @@ const SignUpScreen = () => {
   };
 
   return (
-    <TouchableWithoutFeedback
+    <SafeAreaView>
+      <ScrollView>
+      <TouchableWithoutFeedback
       onPress={() => {
         Keyboard.dismiss();
       }}>
       <View style={styles.container}>
         <View style={styles.logintextcontainer}>
           <Text style={styles.signuptext}>Sign Up</Text>
-          <Text style={styles.logintext}>Login</Text>
+          <TouchableOpacity onPress = {() => {
+            navigation.navigate('Login')
+          }}>
+            <Text style={styles.logintext}>Login</Text>
+          </TouchableOpacity>
+          
         </View>
 
         <View style={styles.collection}>
@@ -115,6 +124,10 @@ const SignUpScreen = () => {
         </View>
       </View>
     </TouchableWithoutFeedback>
+      </ScrollView>
+      
+    </SafeAreaView>
+    
   );
 };
 
