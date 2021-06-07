@@ -3,7 +3,7 @@ import {View} from 'react-native';
 import {FloatingLabelInput} from 'react-native-floating-label-input';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
-const FloatingLabelPass = ({inputLabel, hints, styleSheet}) => {
+const FloatingLabelPass = ({inputLabel, hints, styleSheet, ...props}) => {
   const [password, setPassword] = useState('');
   return (
     <View style={styleSheet}>
@@ -42,6 +42,7 @@ const FloatingLabelPass = ({inputLabel, hints, styleSheet}) => {
         }
         onChangeText={value => {
           setPassword(value);
+          props.callback(value);
         }}
       />
     </View>
