@@ -5,6 +5,7 @@ import {createStackNavigator} from 'react-navigation-stack';
 import {createAppContainer, createSwitchNavigator} from 'react-navigation';
 
 import LoginScreen from '../screens/Signup';
+import HomeScreen from '../screens/Home';
 
 const AuthNavigatorConfig = {
   initialRouteName: 'Login',
@@ -14,7 +15,7 @@ const AuthNavigatorConfig = {
 
 const RouteConfigs = {
   Login: {
-    screen: LoginScreen,
+    screen: HomeScreen,
   },
 };
 
