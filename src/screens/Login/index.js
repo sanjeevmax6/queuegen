@@ -10,32 +10,36 @@ import {
 import {Text, Image} from 'react-native-elements';
 import FloatingLabel from '../../components/FloatingLabel';
 import FloatingLabelPass from '../../components/FloatingLabelPass';
-import CardFlip from 'react-native-card-flip';
+import {Navigation} from 'react-native-navigation';
 
-const LoginScreen = ({}) => {
-  const [passVisibilty, setpassVisibilty] = useState(false);
-  const [passImg, setpassImg] = useState('eye-slash');
-  const togglePassword = () => {
-    if (passVisibilty) {
-      setpassImg('eye-slash');
-      setpassVisibilty(false);
-    } else {
-      setpassImg('eye');
-      setpassVisibilty(true);
-    }
-  };
+const LoginScreen = props => {
+  const [username, setusername] = useState('');
+  const [password, setpassword] = useState('');
+
+  const login = () => {};
   return (
-    <KeyboardAvoidingView behavior="padding">
-      <TouchableWithoutFeedback
-        onPress={() => {
-          Keyboard.dismiss();
-        }}>
+    <TouchableWithoutFeedback
+      onPress={() => {
+        Keyboard.dismiss();
+      }}
+      style={{backgroundColor: 'white'}}>
+      <KeyboardAvoidingView
+        style={{flex: 1, backgroundColor: 'white'}}
+        behavior="height">
         <View style={styles.container}>
           <View style={styles.logintextcontainer}>
             <Text style={styles.logintext}>Login</Text>
-            <Text style={styles.signuptext}>Sign Up</Text>
+            <TouchableOpacity
+              onPress={() => {
+                Navigation.push(props.componentId, {
+                  component: {
+                    name: 'SignUp',
+                  },
+                });
+              }}>
+              <Text style={styles.signuptext}>Sign Up</Text>
+            </TouchableOpacity>
           </View>
-
           <View style={styles.collection}>
             <View style={styles.profileImgView}>
               <Image
@@ -49,61 +53,40 @@ const LoginScreen = ({}) => {
                 hints="Enter valid mail Id"
                 initialState=""
                 style={styles.emailInput}
+                callback={email => setusername(email)}
               />
               <FloatingLabelPass
                 inputLabel="Password"
                 hints="Enter Password"
                 styleSheet={styles.passInput}
+                callback={pass => setpassword(pass)}
               />
             </View>
-          </View>
-
-          <View style={styles.btnConatiner}>
+            <Text style={styles.forgotText}>Forgot Password?</Text>
             <TouchableOpacity
               style={styles.touchcontainer}
               underlayColor="#ccc"
-              activeOpacity={0.6}>
+              activeOpacity={0.6}
+              onPress={login}>
               <View style={styles.btnStyle}>
                 <Text style={styles.loginbtn}>LOG IN</Text>
               </View>
             </TouchableOpacity>
-            <Text style={styles.ortext}>OR</Text>
-            <TouchableOpacity
-              style={{...styles.touchcontainer, marginTop: 40}}
-              activeOpacity={0.6}>
-              <View style={styles.btnStyle}>
-                <Text style={styles.loginbtn}>LOG IN WITH OTP</Text>
-              </View>
-            </TouchableOpacity>
           </View>
         </View>
-      </TouchableWithoutFeedback>
-    </KeyboardAvoidingView>
-    //   <View style={styless.container}>
-    //   <CardFlip style={styless.cardContainer} ref={card => (this.card = card)}>
-    //     <TouchableOpacity
-    //       activeOpacity={1}
-    //       style={[styless.card, styless.card1]}
-    //       onPress={() => this.card.flip()}>
-    //       <Text style={styless.label}>AB</Text>
-    //     </TouchableOpacity>
-    //     <TouchableOpacity
-    //       activeOpacity={1}
-    //       style={[styless.card, styless.card2]}
-    //       onPress={() => this.card.flip()}>
-    //       <Text style={styless.label}>CD</Text>
-    //     </TouchableOpacity>
-    //   </CardFlip>
-    // </View>
+      </KeyboardAvoidingView>
+    </TouchableWithoutFeedback>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
+    justifyContent: 'center',
     backgroundColor: 'white',
     height: '100%',
     flexDirection: 'column',
+    flex: 1,
   },
   logintextcontainer: {
     flexDirection: 'row',
@@ -128,7 +111,7 @@ const styles = StyleSheet.create({
     color: '#ddd',
   },
   profileImgView: {
-    marginBottom: '40%',
+    marginBottom: '20%',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -147,11 +130,10 @@ const styles = StyleSheet.create({
     width: '85%',
     alignItems: 'center',
     justifyContent: 'center',
-    height: '45%',
+    flex: 1,
+    marginBottom: '25%',
   },
   inputContainer: {
-    bottom: 0,
-    position: 'absolute',
     width: '100%',
   },
   loginbtn: {
@@ -162,7 +144,6 @@ const styles = StyleSheet.create({
   btnConatiner: {
     width: '100%',
     flexDirection: 'column',
-    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -175,11 +156,18 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.26,
     backgroundColor: 'white',
     elevation: 8,
-    borderRadius: 50,
+    borderRadius: 10,
     backgroundColor: 'white',
   },
+  forgotText: {
+    color: 'blue',
+    marginTop: '5%',
+    textAlign: 'right',
+    alignSelf: 'stretch',
+  },
   touchcontainer: {
-    width: '75%',
+    width: '100%',
+    marginTop: '10%',
     backgroundColor: 'white',
   },
   ortext: {
