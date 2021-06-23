@@ -10,40 +10,162 @@ import {
 import {Text, Image} from 'react-native-elements';
 import FloatingLabel from '../../components/FloatingLabel';
 import FloatingLabelPass from '../../components/FloatingLabelPass';
-import CardFlip from 'react-native-card-flip';
-import SignUpScreen from '../../screens/Signup'
-import { SafeAreaView } from 'react-native';
-import { ScrollView } from 'react-native';
+import {Navigation} from 'react-native-navigation';
+import auth from '@react-native-firebase/auth';
+import Toast from 'react-native-simple-toast';
+import UserModel from '../../model/UserModel';
+import SharedPref from 'react-native-shared-preferences';
 
-const LoginScreen = ({navigation}) => {
-  const [passVisibilty, setpassVisibilty] = useState(false);
-  const [passImg, setpassImg] = useState('eye-slash');
-  const togglePassword = () => {
-    if (passVisibilty) {
-      setpassImg('eye-slash');
-      setpassVisibilty(false);
-    } else {
-      setpassImg('eye');
-      setpassVisibilty(true);
+const LoginScreen = props => {
+  const [username, setusername] = useState('');
+  const [password, setpassword] = useState('');
+  const homeRoot = {
+    root: {
+      stack: {
+        children: [
+          {
+            component: {
+              name: 'Home',
+            },
+          },
+        ],
+      },
+    },
+  };
+
+  Navigation.setDefaultOptions({
+    statusBar: {
+      backgroundColor: 'white',
+    },
+    topBar: {
+      visible: false,
+    },
+    animations: {
+      push: {
+        content: {
+          enter: {
+            translationX: {
+              from: require('react-native').Dimensions.get('window').width,
+              to: 0,
+              duration: 300,
+            },
+          },
+        },
+      },
+      setRoot: {
+        enter: {
+          waitForRender: true,
+          enabled: true,
+          translationX: {
+            from: require('react-native').Dimensions.get('window').width,
+            to: 0,
+            duration: 300,
+          },
+        },
+      },
+      pop: {
+        content: {
+          enter: {
+            translationX: {
+              from: -require('react-native').Dimensions.get('window').width,
+              to: 0,
+              duration: 300,
+            },
+          },
+          exit: {
+            translationX: {
+              from: 0,
+              to: require('react-native').Dimensions.get('window').width,
+              duration: 300,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  const login = () => {
+    if (!username || !password) Toast.show('Invalid Credentials');
+    else {
+      auth()
+        .signInWithEmailAndPassword(username, password)
+        .then(() => {
+          Toast.show('Welcome, ' + username);
+          console.log('User signed in!');
+          SharedPref.setName('user data');
+          SharedPref.setItem('user', username);
+          Navigation.setRoot(homeRoot);
+        })
+        .catch(error => {
+          if (error.code === 'auth/auth/invalid-email') {
+            Toast.show('Invalid Credentials');
+            console.log('That email address is invalid!');
+          }
+
+          if (error.code === 'auth/user-disabled') {
+            Toast.show('User Disabled');
+            console.log('User Disabled');
+          }
+
+          if (error.code === 'auth/user-not-found') {
+            Toast.show('User not found');
+            console.log('User not found');
+          }
+
+          if (error.code === 'auth/wrong-password') {
+            Toast.show('Invalid Password');
+            console.log('Invalid Password');
+          }
+        });
+    }
+  };
+
+  const forgotPass = () => {
+    if (!username) Toast.show('Invalid Email Id');
+    else {
+      auth()
+        .sendPasswordResetEmail(username)
+        .then(() => {
+          Toast.show('Password reset email sent');
+        })
+        .catch(error => {
+          if (error.code === 'auth/auth/invalid-email') {
+            Toast.show('Invalid Credential');
+            console.log('That email address is invalid!');
+          }
+          if (error.code === 'auth/user-not-found') {
+            Toast.show('User not found');
+            console.log('User not found');
+          }
+        });
     }
   };
   return (
-    // <SafeAreaView>
-    //   <ScrollView>
-      <TouchableWithoutFeedback
-        onPress={() => {
-          Keyboard.dismiss();
-        }}>
+    <TouchableWithoutFeedback
+      onPress={() => {
+        Keyboard.dismiss();
+      }}
+      style={{backgroundColor: 'white'}}>
+      <KeyboardAvoidingView
+        style={{flex: 1, backgroundColor: 'white'}}
+        behavior="height">
         <View style={styles.container}>
           <View style={styles.logintextcontainer}>
             <Text style={styles.logintext}>Login</Text>
-            <TouchableOpacity onPress = {()=> {
-              navigation.navigate('SignUp')
-            }}>
+            <TouchableOpacity
+              onPress={() => {
+                Navigation.push(props.componentId, {
+                  component: {
+                    name: 'SignUp',
+                    passProps: {
+                      root: homeRoot,
+                    },
+                  },
+                });
+              }}>
               <Text style={styles.signuptext}>Sign Up</Text>
             </TouchableOpacity>
           </View>
-
           <View style={styles.collection}>
             <View style={styles.profileImgView}>
               <Image
@@ -57,57 +179,31 @@ const LoginScreen = ({navigation}) => {
                 hints="Enter valid mail Id"
                 initialState=""
                 style={styles.emailInput}
+                callback={email => setusername(email)}
               />
               <FloatingLabelPass
                 inputLabel="Password"
                 hints="Enter Password"
                 styleSheet={styles.passInput}
+                callback={pass => setpassword(pass)}
               />
             </View>
-          </View>
-
-          <View style={styles.btnConatiner}>
+            <Text style={styles.forgotText} onPress={forgotPass}>
+              Forgot Password?
+            </Text>
             <TouchableOpacity
               style={styles.touchcontainer}
               underlayColor="#ccc"
-              activeOpacity={0.6}>
+              activeOpacity={0.6}
+              onPress={login}>
               <View style={styles.btnStyle}>
                 <Text style={styles.loginbtn}>LOG IN</Text>
               </View>
             </TouchableOpacity>
-            <Text style={styles.ortext}>OR</Text>
-            <TouchableOpacity
-              style={{...styles.touchcontainer, marginTop: 40}}
-              activeOpacity={0.6}>
-              <View style={styles.btnStyle}>
-                <Text style={styles.loginbtn}>LOG IN WITH OTP</Text>
-              </View>
-            </TouchableOpacity>
           </View>
         </View>
-      </TouchableWithoutFeedback>
-    //   </ScrollView>
-      
-    // </SafeAreaView>
-    
-      
-   
-    //   <View style={styless.container}>
-    //   <CardFlip style={styless.cardContainer} ref={card => (this.card = card)}>
-    //     <TouchableOpacity
-    //       activeOpacity={1}
-    //       style={[styless.card, styless.card1]}
-    //       onPress={() => this.card.flip()}>
-    //       <Text style={styless.label}>AB</Text>
-    //     </TouchableOpacity>
-    //     <TouchableOpacity
-    //       activeOpacity={1}
-    //       style={[styless.card, styless.card2]}
-    //       onPress={() => this.card.flip()}>
-    //       <Text style={styless.label}>CD</Text>
-    //     </TouchableOpacity>
-    //   </CardFlip>
-    // </View>
+      </KeyboardAvoidingView>
+    </TouchableWithoutFeedback>
   );
 };
 
@@ -143,7 +239,7 @@ const styles = StyleSheet.create({
     color: '#ddd',
   },
   profileImgView: {
-    marginBottom: '40%',
+    marginBottom: '20%',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -162,11 +258,10 @@ const styles = StyleSheet.create({
     width: '85%',
     alignItems: 'center',
     justifyContent: 'center',
-    height: '45%',
+    flex: 1,
+    marginBottom: '25%',
   },
   inputContainer: {
-    bottom: 0,
-    position: 'absolute',
     width: '100%',
   },
   loginbtn: {
@@ -177,7 +272,6 @@ const styles = StyleSheet.create({
   btnConatiner: {
     width: '100%',
     flexDirection: 'column',
-    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -190,11 +284,18 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.26,
     backgroundColor: 'white',
     elevation: 8,
-    borderRadius: 50,
+    borderRadius: 10,
     backgroundColor: 'white',
   },
+  forgotText: {
+    color: 'blue',
+    marginTop: '5%',
+    textAlign: 'right',
+    alignSelf: 'stretch',
+  },
   touchcontainer: {
-    width: '75%',
+    width: '100%',
+    marginTop: '10%',
     backgroundColor: 'white',
   },
   ortext: {

@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "790262633890",
+    "project_id": "virtual-queue-e0e0e",
+    "storage_bucket": "virtual-queue-e0e0e.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:790262633890:android:1c5b7b4497c18d0df48efb",
+        "android_client_info": {
+          "package_name": "com.queuegen"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "790262633890-on75n5j223hsrmqj155tksi72ug57r2d.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAiNdGgvMQWkECntOlldQARg9_nBlk0kvw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "790262633890-on75n5j223hsrmqj155tksi72ug57r2d.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

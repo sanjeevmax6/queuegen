@@ -1,6 +1,6 @@
-import React, {Component, useState} from 'react';
-import { SafeAreaView } from 'react-native';
-import { ScrollView } from 'react-native';
+import React, {Component, useState, useRef} from 'react';
+import {SafeAreaView} from 'react-native';
+import {ScrollView} from 'react-native';
 import {
   View,
   StyleSheet,
@@ -12,122 +12,81 @@ import {
 import {Text, Image} from 'react-native-elements';
 import FloatingLabel from '../../components/FloatingLabel';
 import FloatingLabelPass from '../../components/FloatingLabelPass';
+import {Navigation} from 'react-native-navigation';
+import PagerView from 'react-native-pager-view';
+import auth from '@react-native-firebase/auth';
+import Toast from 'react-native-simple-toast';
+import SharedPref from 'react-native-shared-preferences';
+import UserModel from '../../model/UserModel';
+import Screen1 from './Screen1';
+import Screen2 from './Screen2';
 
-const SignUpScreen = ({navigation}) => {
-  const [email, setemail] = useState('');
-  const [phoneNum, setPhone] = useState('');
-  const [name, setName] = useState('');
-  const [password, setPassword] = useState('');
-  const [cpass, setCpass] = useState('');
-  function validateEmail(email) {
-    const re =
-      /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
-    return re.test(email);
-  }
-  function validatePhnum(phnum) {
-    const phoneno = /^\d{10}$/;
-    return phoneno.test(phnum);
-  }
-  const getName = _name => {
-    setName(_name);
-  };
-  const getEmail = e_mail => {
-    setemail(e_mail);
-  };
-  const getPhnum = phNum => {
-    console.log(phNum);
-    setPhone(phNum);
-  };
-  const getPass = _pass => {
-    setPassword(_pass);
-  };
-  const getCpass = _cpass => {
-    setPassword(_cpass);
-  };
-  const register = () => {
-    if (validateEmail(email) && validatePhnum(phoneNum) && password === cpass) {
-      console.log('registered');
-    } else {
-      console.log('error');
-    }
+const SignUpScreen = props => {
+  const pager = useRef(null);
+
+  const nextPage = () => {
+    pager.current.setPage(1);
   };
 
+  const register = (email, password) => {
+    console.log('' + email + password);
+    auth()
+      .createUserWithEmailAndPassword(email, password)
+      .then(() => {
+        Toast.show('Welcome, ' + email);
+        console.log('User account created & signed in!');
+        SharedPref.setName('user data');
+        SharedPref.setItem('user', email);
+        Navigation.setRoot(props.root);
+      })
+      .catch(error => {
+        if (error.code === 'auth/email-already-in-use') {
+          Toast.show('User already exits!');
+          console.log('That email address is already in use!');
+          Navigation.pop(props.componentId);
+        }
+
+        if (error.code === 'auth/invalid-email') {
+          Toast.show('Invalid Credentials');
+          console.log('That email address is invalid!');
+        }
+
+        if (error.code === 'auth/weak-password') {
+          Toast.show('Invalid Credentials');
+          console.log('That email address is invalid!');
+        }
+        console.log(error);
+      });
+  };
+
+  const prevPage = () => {
+    pager.current.setPage(0);
+  };
   return (
-    <SafeAreaView>
-      <ScrollView>
-      <TouchableWithoutFeedback
-      onPress={() => {
-        Keyboard.dismiss();
-      }}>
-      <View style={styles.container}>
-        <View style={styles.logintextcontainer}>
-          <Text style={styles.signuptext}>Sign Up</Text>
-          <TouchableOpacity onPress = {() => {
-            navigation.navigate('Login')
+    <View style={styles.container}>
+      <View style={styles.logintextcontainer}>
+        <TouchableOpacity
+          onPress={() => {
+            Navigation.pop(props.componentId);
           }}>
-            <Text style={styles.logintext}>Login</Text>
-          </TouchableOpacity>
-          
-        </View>
+          <Text style={styles.logintext}>Login</Text>
+        </TouchableOpacity>
 
-        <View style={styles.collection}>
-          <View style={styles.profileImgView}>
-            <Image
-              source={require('../../assests/images/profile_img.png')}
-              style={styles.profileImg}
-            />
-          </View>
-          <View style={styles.inputContainer}>
-            <FloatingLabel
-              inputLabel="Name"
-              hints="Enter your Full Name"
-              initialState=""
-              styleSheet={styles.emailInput}
-              callback={getName}
-            />
-            <FloatingLabel
-              inputLabel="Phone Number"
-              hints="Enter your 10 digit phone Number"
-              initialState=""
-              styleSheet={{...styles.emailInput, marginTop: 40}}
-              callback={getPhnum}
-            />
-            <FloatingLabel
-              inputLabel="Email Address"
-              hints="Enter valid mail Id"
-              initialState=""
-              styleSheet={{...styles.emailInput, marginTop: 40}}
-              callback={getEmail}
-            />
-            <FloatingLabelPass
-              inputLabel="Password"
-              hints="Enter Password"
-              styleSheet={styles.passInput}
-              callback={getPass}
-            />
-            <FloatingLabelPass
-              inputLabel="Confirm Password"
-              hints="Re-Enter Password"
-              styleSheet={styles.passInput}
-              callback={getCpass}
-            />
-          </View>
-          <TouchableOpacity
-            style={styles.touchcontainer}
-            underlayColor="#ccc"
-            activeOpacity={0.6}
-            onPress={register}>
-            <View style={styles.btnStyle}>
-              <Text style={styles.loginbtn}>REGISTER</Text>
-            </View>
-          </TouchableOpacity>
-        </View>
+        <Text style={styles.signuptext}>SignUp</Text>
       </View>
-    </TouchableWithoutFeedback>
-      </ScrollView>
-      
-    </SafeAreaView>
-    
+      <PagerView
+        style={styles.pagerView}
+        initialPage={0}
+        scrollEnabled={false}
+        ref={pager}>
+        <View key="1" style={styles.pagerItem}>
+          <Screen1 next={nextPage} />
+        </View>
+        <View key="2" style={styles.pagerItem}>
+          <Screen2 prev={prevPage} next={register} />
+        </View>
+      </PagerView>
+    </View>
   );
 };
 
@@ -145,75 +104,31 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     width: '100%',
     marginTop: 30,
-    top: 0,
-    position: 'absolute',
     justifyContent: 'space-between',
   },
   logintext: {
     padding: 10,
     fontSize: 20,
-    marginRight: 20,
+    marginLeft: 20,
     fontWeight: 'bold',
     color: '#ddd',
+    alignContent: 'flex-start',
   },
   signuptext: {
     padding: 10,
     fontSize: 30,
     fontWeight: 'bold',
     color: 'black',
-    marginLeft: 20,
-    alignContent: 'flex-start',
+    marginRight: 20,
   },
-  collection: {
-    width: '85%',
-    alignSelf: 'center',
-    paddingTop: 30,
-    paddingBottom: 30,
-    justifyContent: 'center',
-    alignItems: 'center',
+  pagerView: {
     flex: 1,
+    height: '100%',
+    width: '100%',
+    backgroundColor: 'white',
   },
-  profileImgView: {
-    justifyContent: 'center',
+  pagerItem: {
     alignItems: 'center',
-  },
-  profileImg: {
-    width: 110,
-    height: 110,
-  },
-  inputContainer: {
-    width: '100%',
-    marginTop: 20,
-  },
-  emailInput: {
-    width: '100%',
-    marginTop: 40,
-  },
-  passInput: {
-    width: '100%',
-    marginTop: 40,
-  },
-  touchcontainer: {
-    width: '75%',
-    backgroundColor: 'white',
-    marginTop: 70,
-  },
-  btnStyle: {
-    alignItems: 'center',
-    shadowColor: '#ddd',
-    shadowOffset: {width: 2, height: 2},
-    shadowColor: '#000000',
-    shadowRadius: 4,
-    shadowOpacity: 0.26,
-    backgroundColor: 'white',
-    elevation: 8,
-    borderRadius: 50,
-    backgroundColor: 'white',
-  },
-  loginbtn: {
-    padding: 15,
-    fontSize: 17,
-    color: '#191970',
   },
 });
 
