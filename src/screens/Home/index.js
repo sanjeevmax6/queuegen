@@ -12,6 +12,10 @@ import {
   Dimensions,
 } from 'react-native';
 import {Text, Image, Header, Button, Overlay} from 'react-native-elements';
+import auth from '@react-native-firebase/auth';
+import {Navigation} from 'react-native-navigation';
+import SharedPref from 'react-native-shared-preferences';
+import Toast from 'react-native-simple-toast';
 
 const qrDim = Dimensions.get('window').width * 0.57;
 
@@ -45,6 +49,30 @@ const HomeScreen = () => {
     },
   ];
 
+  const loginRoot = {
+    root: {
+      stack: {
+        children: [
+          {
+            component: {
+              name: 'Login',
+            },
+          },
+        ],
+      },
+    },
+  };
+
+  const logout = () => {
+    auth()
+      .signOut()
+      .then(() => console.log('User signed out!'));
+    SharedPref.setName('user data');
+    SharedPref.removeItem('user');
+    Toast.show('Signed Out!');
+    Navigation.setRoot(loginRoot);
+  };
+
   return (
     <TouchableWithoutFeedback
       onPress={() => {
@@ -57,6 +85,7 @@ const HomeScreen = () => {
             <Image
               source={require('../../assests/images/profile_img.png')}
               style={styles.profIcon}
+              onPress={logout}
             />
           }
           centerComponent={

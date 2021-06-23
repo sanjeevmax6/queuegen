@@ -1,7 +1,10 @@
+import React, {useState, useEffect} from 'react';
 import {Navigation} from 'react-native-navigation';
 import LoginScreen from './screens/Login';
 import SignUp from './screens/Signup';
 import Home from './screens/Home';
+import auth from '@react-native-firebase/auth';
+import SharedPref from 'react-native-shared-preferences';
 
 Navigation.registerComponent('Login', () => LoginScreen);
 Navigation.registerComponent('SignUp', () => SignUp);
@@ -21,6 +24,21 @@ const loginRoot = {
   },
 };
 
+const homeRoot = {
+  root: {
+    stack: {
+      children: [
+        {
+          component: {
+            name: 'Home',
+            enabled: false,
+          },
+        },
+      ],
+    },
+  },
+};
+
 Navigation.setDefaultOptions({
   statusBar: {
     backgroundColor: 'white',
@@ -28,52 +46,12 @@ Navigation.setDefaultOptions({
   topBar: {
     visible: false,
   },
-  // hardwareBackButton: {
-  //   popStackOnPress: false,
-  // },
-  animations: {
-    push: {
-      content: {
-        enter: {
-          translationX: {
-            from: require('react-native').Dimensions.get('window').width,
-            to: 0,
-            duration: 300,
-          },
-        },
-      },
-    },
-    setRoot: {
-      enter: {
-        waitForRender: true,
-        enabled: false,
-        translationY: {
-          from: 0,
-          to: 1,
-          duration: 3,
-        },
-      },
-    },
-    pop: {
-      content: {
-        enter: {
-          translationX: {
-            from: -require('react-native').Dimensions.get('window').width,
-            to: 0,
-            duration: 300,
-          },
-        },
-        exit: {
-          translationX: {
-            from: 0,
-            to: require('react-native').Dimensions.get('window').width,
-            duration: 300,
-          },
-        },
-      },
-    },
-  },
 });
-Navigation.events().registerAppLaunchedListener(async () => {
-  Navigation.setRoot(loginRoot);
+
+Navigation.events().registerAppLaunchedListener(() => {
+  SharedPref.setName('user data');
+  SharedPref.getItem('user', function (user) {
+    console.log(user);
+    Navigation.setRoot(user == null ? loginRoot : homeRoot);
+  });
 });

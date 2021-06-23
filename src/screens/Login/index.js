@@ -11,12 +11,135 @@ import {Text, Image} from 'react-native-elements';
 import FloatingLabel from '../../components/FloatingLabel';
 import FloatingLabelPass from '../../components/FloatingLabelPass';
 import {Navigation} from 'react-native-navigation';
+import auth from '@react-native-firebase/auth';
+import Toast from 'react-native-simple-toast';
+import UserModel from '../../model/UserModel';
+import SharedPref from 'react-native-shared-preferences';
 
 const LoginScreen = props => {
   const [username, setusername] = useState('');
   const [password, setpassword] = useState('');
+  const homeRoot = {
+    root: {
+      stack: {
+        children: [
+          {
+            component: {
+              name: 'Home',
+            },
+          },
+        ],
+      },
+    },
+  };
 
-  const login = () => {};
+  Navigation.setDefaultOptions({
+    statusBar: {
+      backgroundColor: 'white',
+    },
+    topBar: {
+      visible: false,
+    },
+    animations: {
+      push: {
+        content: {
+          enter: {
+            translationX: {
+              from: require('react-native').Dimensions.get('window').width,
+              to: 0,
+              duration: 300,
+            },
+          },
+        },
+      },
+      setRoot: {
+        enter: {
+          waitForRender: true,
+          enabled: true,
+          translationX: {
+            from: require('react-native').Dimensions.get('window').width,
+            to: 0,
+            duration: 300,
+          },
+        },
+      },
+      pop: {
+        content: {
+          enter: {
+            translationX: {
+              from: -require('react-native').Dimensions.get('window').width,
+              to: 0,
+              duration: 300,
+            },
+          },
+          exit: {
+            translationX: {
+              from: 0,
+              to: require('react-native').Dimensions.get('window').width,
+              duration: 300,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  const login = () => {
+    if (!username || !password) Toast.show('Invalid Credentials');
+    else {
+      auth()
+        .signInWithEmailAndPassword(username, password)
+        .then(() => {
+          Toast.show('Welcome, ' + username);
+          console.log('User signed in!');
+          SharedPref.setName('user data');
+          SharedPref.setItem('user', username);
+          Navigation.setRoot(homeRoot);
+        })
+        .catch(error => {
+          if (error.code === 'auth/auth/invalid-email') {
+            Toast.show('Invalid Credentials');
+            console.log('That email address is invalid!');
+          }
+
+          if (error.code === 'auth/user-disabled') {
+            Toast.show('User Disabled');
+            console.log('User Disabled');
+          }
+
+          if (error.code === 'auth/user-not-found') {
+            Toast.show('User not found');
+            console.log('User not found');
+          }
+
+          if (error.code === 'auth/wrong-password') {
+            Toast.show('Invalid Password');
+            console.log('Invalid Password');
+          }
+        });
+    }
+  };
+
+  const forgotPass = () => {
+    if (!username) Toast.show('Invalid Email Id');
+    else {
+      auth()
+        .sendPasswordResetEmail(username)
+        .then(() => {
+          Toast.show('Password reset email sent');
+        })
+        .catch(error => {
+          if (error.code === 'auth/auth/invalid-email') {
+            Toast.show('Invalid Credential');
+            console.log('That email address is invalid!');
+          }
+          if (error.code === 'auth/user-not-found') {
+            Toast.show('User not found');
+            console.log('User not found');
+          }
+        });
+    }
+  };
   return (
     <TouchableWithoutFeedback
       onPress={() => {
@@ -34,6 +157,9 @@ const LoginScreen = props => {
                 Navigation.push(props.componentId, {
                   component: {
                     name: 'SignUp',
+                    passProps: {
+                      root: homeRoot,
+                    },
                   },
                 });
               }}>
@@ -62,7 +188,9 @@ const LoginScreen = props => {
                 callback={pass => setpassword(pass)}
               />
             </View>
-            <Text style={styles.forgotText}>Forgot Password?</Text>
+            <Text style={styles.forgotText} onPress={forgotPass}>
+              Forgot Password?
+            </Text>
             <TouchableOpacity
               style={styles.touchcontainer}
               underlayColor="#ccc"

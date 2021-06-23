@@ -76,14 +76,14 @@ const Screen1 = props => {
             style={styles.nextContainer}
             onPress={() => {
               console.log('click');
-              props.next(0);
+              props.next();
             }}>
             <Image
               source={require('../../assests/images/right-arrow.png')}
               style={styles.nextImg}
               onPress={() => {
                 console.log('click');
-                props.next(0);
+                props.next();
               }}
             />
           </View>

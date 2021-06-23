@@ -10,10 +10,9 @@ import {
   KeyboardAvoidingView,
 } from 'react-native';
 import {Text, Image} from 'react-native-elements';
+import Toast from 'react-native-simple-toast';
 import FloatingLabel from '../../components/FloatingLabel';
 import FloatingLabelPass from '../../components/FloatingLabelPass';
-
-const getEmail = () => {};
 
 const Screen2 = props => {
   const [email, setemail] = useState('');
@@ -32,6 +31,13 @@ const Screen2 = props => {
   };
   const getCpass = _cpass => {
     setPassword(_cpass);
+  };
+
+  const register = () => {
+    console.log('register');
+    if (!validateEmail(email)) Toast.show('Enter valid Email Id');
+    else if (password === cpass) Toast.show("Passwords don't match");
+    else props.next(email, password);
   };
   return (
     <TouchableWithoutFeedback
@@ -68,15 +74,11 @@ const Screen2 = props => {
           </View>
           <View
             style={{...styles.nextContainer, right: '7%'}}
-            onPress={() => {
-              props.next(1);
-            }}>
+            onPress={register}>
             <Image
               source={require('../../assests/images/check.png')}
               style={styles.nextImg}
-              onPress={() => {
-                props.next(1);
-              }}
+              onPress={register}
             />
           </View>
           <View

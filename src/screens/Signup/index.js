@@ -14,27 +14,54 @@ import FloatingLabel from '../../components/FloatingLabel';
 import FloatingLabelPass from '../../components/FloatingLabelPass';
 import {Navigation} from 'react-native-navigation';
 import PagerView from 'react-native-pager-view';
+import auth from '@react-native-firebase/auth';
+import Toast from 'react-native-simple-toast';
+import SharedPref from 'react-native-shared-preferences';
+import UserModel from '../../model/UserModel';
 import Screen1 from './Screen1';
 import Screen2 from './Screen2';
 
 const SignUpScreen = props => {
   const pager = useRef(null);
 
-  const nextPage = page => {
-    if (page == 0) pager.current.setPage(1);
-    else {
-      Navigation.push(props.componentId, {
-        component: {
-          name: 'Home',
-        },
+  const nextPage = () => {
+    pager.current.setPage(1);
+  };
+
+  const register = (email, password) => {
+    console.log('' + email + password);
+    auth()
+      .createUserWithEmailAndPassword(email, password)
+      .then(() => {
+        Toast.show('Welcome, ' + email);
+        console.log('User account created & signed in!');
+        SharedPref.setName('user data');
+        SharedPref.setItem('user', email);
+        Navigation.setRoot(props.root);
+      })
+      .catch(error => {
+        if (error.code === 'auth/email-already-in-use') {
+          Toast.show('User already exits!');
+          console.log('That email address is already in use!');
+          Navigation.pop(props.componentId);
+        }
+
+        if (error.code === 'auth/invalid-email') {
+          Toast.show('Invalid Credentials');
+          console.log('That email address is invalid!');
+        }
+
+        if (error.code === 'auth/weak-password') {
+          Toast.show('Invalid Credentials');
+          console.log('That email address is invalid!');
+        }
+        console.log(error);
       });
-    }
   };
 
   const prevPage = () => {
     pager.current.setPage(0);
   };
-
   return (
     <View style={styles.container}>
       <View style={styles.logintextcontainer}>
@@ -56,7 +83,7 @@ const SignUpScreen = props => {
           <Screen1 next={nextPage} />
         </View>
         <View key="2" style={styles.pagerItem}>
-          <Screen2 prev={prevPage} next={nextPage}></Screen2>
+          <Screen2 prev={prevPage} next={register} />
         </View>
       </PagerView>
     </View>
