@@ -10,10 +10,11 @@ import {
 import {Text, Image} from 'react-native-elements';
 import FloatingLabel from '../../components/FloatingLabel';
 import FloatingLabelPass from '../../components/FloatingLabelPass';
-import CardFlip from 'react-native-card-flip';
+
 import SignUpScreen from '../../screens/Signup'
 import { SafeAreaView } from 'react-native';
 import { ScrollView } from 'react-native';
+import CardFlip from 'react-native-card-flip'
 
 const LoginScreen = ({navigation}) => {
   const [passVisibilty, setpassVisibilty] = useState(false);
@@ -80,7 +81,11 @@ const LoginScreen = ({navigation}) => {
               style={{...styles.touchcontainer, marginTop: 40}}
               activeOpacity={0.6}>
               <View style={styles.btnStyle}>
-                <Text style={styles.loginbtn}>LOG IN WITH OTP</Text>
+              <CardFlip  ref={(card) => this.card = card} >
+                <TouchableOpacity style={styles.loginbtn} onPress={() => this.card.flip()} ><Text>LOG IN WITH OTP</Text></TouchableOpacity>
+                <TouchableOpacity style={styles.loginbtn} onPress={() => this.card.flip()} ><Text>SEND OTP</Text></TouchableOpacity>
+                </CardFlip>
+                {/* <Text style={styles.loginbtn}>LOG IN WITH OTP</Text> */}
               </View>
             </TouchableOpacity>
           </View>
